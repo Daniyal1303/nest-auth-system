@@ -8,7 +8,6 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    debugger;
     return this.appService.getHello();
   }
 }

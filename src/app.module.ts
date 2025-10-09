@@ -1,26 +1,26 @@
-/* eslint-disable prettier/prettier */
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserController } from './user/user.controller';
-import { UserService } from './user/user.service';
-import { EmployeeModule } from './employee/employee.module';
-import { CustomerModule } from './customer/customer.module';
 import { ConfigModule } from '@nestjs/config';
-import { EvService } from './ev/ev.service';
-import { EvController } from './ev/ev.controller';
-import { MongooseModule } from '@nestjs/mongoose';
-import { LibraryModule } from './library/library.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { UsersService } from './users/users.service';
+import { UsersController } from './users/users.controller';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { AuthMiddleware } from './auth/auth.middleware';
 
 @Module({
   imports: [
-    EmployeeModule,
-    CustomerModule,
     ConfigModule.forRoot({ isGlobal: true }),
-    MongooseModule.forRoot(process.env.MONGODB_URI!),
-    LibraryModule,
+    PrismaModule,
+    UsersModule,
+    AuthModule,
   ],
-  controllers: [AppController, UserController, EvController],
-  providers: [AppService, UserService, EvService],
+  controllers: [AppController, UsersController],
+  providers: [AppService, UsersService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes('*');
+  }
+}
