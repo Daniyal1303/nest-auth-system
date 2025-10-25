@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
 import { User } from 'generated/prisma';
 import * as jwt from 'jsonwebtoken';
+import { OtpService } from 'src/otp/otp.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -10,6 +11,7 @@ export class AuthService {
   constructor(
     private configService: ConfigService,
     private prismaService: PrismaService,
+    private otpService: OtpService,
   ) {}
   private readonly jwtSecrets = this.configService.get<string>('JWT_SECRET');
 
@@ -26,14 +28,15 @@ export class AuthService {
     name: string;
     email: string;
     password: string;
-  }): Promise<User & { token: string }> {
+  }): Promise<User & { token: string; otp: string }> {
     const hashedPassword = await this.hashPassword(user.password);
     const createdUser = await this.prismaService.user.create({
       data: { ...user, password: hashedPassword },
     });
 
     const token = await this.generateToken(createdUser.id);
-    return { ...createdUser, token };
+    const { otp } = await this.otpService.sendOtp(user.email);
+    return { ...createdUser, token, otp };
   }
 
   async login(

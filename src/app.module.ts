@@ -6,6 +6,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthMiddleware } from './auth/auth.middleware';
+import { OtpService } from './otp/otp.service';
+import { OtpController } from './otp/otp.controller';
+import { OtpModule } from './otp/otp.module';
 
 @Module({
   imports: [
@@ -13,9 +16,10 @@ import { AuthMiddleware } from './auth/auth.middleware';
     PrismaModule,
     UsersModule,
     AuthModule,
+    OtpModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, OtpController],
+  providers: [AppService, OtpService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
